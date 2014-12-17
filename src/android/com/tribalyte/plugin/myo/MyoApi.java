@@ -29,6 +29,7 @@ import com.thalmic.myo.DeviceListener;
 import com.thalmic.myo.Hub;
 import com.thalmic.myo.Hub.LockingPolicy;
 import com.thalmic.myo.Myo;
+import com.thalmic.myo.Myo.ConnectionState;
 import com.thalmic.myo.Pose;
 import com.thalmic.myo.Quaternion;
 import com.thalmic.myo.Vector3;
@@ -40,6 +41,7 @@ public class MyoApi extends CordovaPlugin {
 
 	private static final boolean LOG_ENABLED = true;
 
+	/* Actions on Hub */
 	private static final String ACTION_INIT = "init";
 	private static final String ACTION_SHUTDOWN = "shutdown";
 	private static final String ACTION_OPEN_SCAN_DLG = "openScanDialog";
@@ -54,12 +56,23 @@ public class MyoApi extends CordovaPlugin {
 	private static final String ACTION_GET_ATTACH_ALLOWANCE = "getMyoAttachAllowance";
 	private static final String ACTION_SET_ATTACH_ALLOWANCE = "setMyoAttachAllowance";
 	private static final String ACTION_GET_DEVICES = "getConnectedDevices";
+	private static final String ACTION_NOW = "now";
 	private static final String ACTION_ON = "on";
 	private static final String ACTION_OFF = "off";
+	/* Actions on Myo */
+	private static final String ACTION_MYO_IS_UNLOCKED = "myo_isUnlocked";
+	private static final String ACTION_MYO_LOCK = "myo_lock";
+	private static final String ACTION_MYO_UNLOCK = "myo_unlock";
+	private static final String ACTION_MYO_REQUEST_RSSI = "myo_requestRssi";
+	private static final String ACTION_MYO_VIBRATE = "myo_vibrate";
+	private static final String ACTION_MYO_NOTIFY_USER = "myo_notifyUserAction";
+	private static final String ACTION_MYO_GET_CONNECT_STATE = "myo_getConnectionState";
+	private static final String ACTION_MYO_IS_CONNECTED = "myo_isConnected";
 	
 	private static final class MyoListener implements DeviceListener{
 		private static final String TAG = MyoListener.class.getSimpleName();
 		private final Map<String, CallbackContext> mEvHandlers = new HashMap<String, CallbackContext>();
+		private final Map<String, Myo> mMyoMap = new HashMap<String, Myo>();
 		private final Object mHandlersLock = new Object();
 		
 		private void callHandler(String evType, Myo myo, long timestamp, Object arg1, Object arg2){
@@ -188,6 +201,14 @@ public class MyoApi extends CordovaPlugin {
 			}
 		}
 		
+		public Myo getMyoOrErr(String mac, CallbackContext cbc){
+			Myo res = mMyoMap.get(mac);
+			if(res == null){
+				cbc.error("Myo with MAC address " + mac + " not found");
+			}
+			return res;
+		}
+		
 		private void sendRemovedResultToHandler(CallbackContext cbc){
 			PluginResult pluginResult = new PluginResult(PluginResult.Status.NO_RESULT, "Event handler removed");
 			pluginResult.setKeepCallback(false);
@@ -225,17 +246,11 @@ public class MyoApi extends CordovaPlugin {
 		}else if(ACTION_OPEN_SCAN_DLG.equals(action)){
 			startScanActivity(cbc);
 		}else if(ACTION_ATTACH_ADJ.equals(action)){
-			//TODO: check that bluetooth is on
-			mHub.attachToAdjacentMyo();
-			cbc.success();
+			attachToAdjacentMyo(null, cbc);
 		}else if(ACTION_ATTACH_ADJS.equals(action)){
-			//TODO: check that bluetooth is on
-			mHub.attachToAdjacentMyos(args.getInt(0));
-			cbc.success();
+			attachToAdjacentMyo(args.getInt(0), cbc);
 		}else if(ACTION_ATTACH_MAC.equals(action)){
-			//TODO: check that bluetooth is on
-			mHub.attachByMacAddress(args.getString(0));
-			cbc.success();
+			attachToAdjacentMyo(args.getString(0), cbc);
 		}else if(ACTION_DETACH.equals(action)){
 			mHub.detach(args.getString(0));
 			cbc.success();
@@ -259,23 +274,65 @@ public class MyoApi extends CordovaPlugin {
 			List<Myo> devList = mHub.getConnectedDevices();
 			//TODO: implement when Myo object is defined on the JS side
 			cbc.error("Operation not implemented: " + action);
+		}else if(ACTION_NOW.equals(action)){
+			cbc.success(Long.toString(mHub.now()));
 		}else if(ACTION_ON.equals(action)){
 			mListener.setEventHandler(args.getString(0), cbc);
 		}else if(ACTION_OFF.equals(action)){
 			mListener.removeEventHandler(args.getString(0));
+		}else if(ACTION_MYO_IS_UNLOCKED.equals(action)){
+			Myo myo = mListener.getMyoOrErr(args.getString(0), cbc);
+			if(myo != null){
+				cbc.success(myo.isUnlocked() ? 1 : 0);
+			}
+		}else if(ACTION_MYO_LOCK.equals(action)){
+			Myo myo = mListener.getMyoOrErr(args.getString(0), cbc);
+			if(myo != null){
+				myo.lock();
+				cbc.success();
+			}
+		}else if(ACTION_MYO_UNLOCK.equals(action)){
+			Myo myo = mListener.getMyoOrErr(args.getString(0), cbc);
+			if(myo != null){
+				myo.unlock(Myo.UnlockType.valueOf(args.getString(1)));
+				cbc.success();
+			}
+		}else if(ACTION_MYO_REQUEST_RSSI.equals(action)){
+			Myo myo = mListener.getMyoOrErr(args.getString(0), cbc);
+			if(myo != null){
+				myo.requestRssi();
+				cbc.success();
+			}
+		}else if(ACTION_MYO_VIBRATE.equals(action)){
+			Myo myo = mListener.getMyoOrErr(args.getString(0), cbc);
+			if(myo != null){
+				myo.vibrate(Myo.VibrationType.valueOf(args.getString(1)));
+				cbc.success();
+			}
+		}else if(ACTION_MYO_NOTIFY_USER.equals(action)){
+			Myo myo = mListener.getMyoOrErr(args.getString(0), cbc);
+			if(myo != null){
+				myo.notifyUserAction();
+				cbc.success();
+			}
+		}else if(ACTION_MYO_GET_CONNECT_STATE.equals(action)){
+			Myo myo = mListener.getMyoOrErr(args.getString(0), cbc);
+			if(myo != null){
+				cbc.success(myo.getConnectionState().name());
+			}
+		}else if(ACTION_MYO_IS_CONNECTED.equals(action)){
+			Myo myo = mListener.getMyoOrErr(args.getString(0), cbc);
+			if(myo != null){
+				cbc.success(myo.isConnected() ? 1 : 0);
+			}
 		}else{
 			logw("Action not supported: " + action);
-			res = false;
+			res = false; //Will result in a "MethodNotFound" error
 		}
-		//TODO: Hub.Scanner functionality
 
-		/*
-		 * //Run on different thread cordova.getThreadPool().execute(new
-		 * Runnable() { public void run() { ... callbackContext.success(); //
-		 * Thread-safe. } });
-		 */
-
-		return res; // Returning false results in a "MethodNotFound" error.
+		//TODO: add Hub.Scanner functionality?
+		
+		return res; 
 	}
 
 	private void initHub(final CallbackContext cbc) {
@@ -310,13 +367,32 @@ public class MyoApi extends CordovaPlugin {
 			}
 		});
 	}
-
-	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-		logd("onActivityResult. req: " + requestCode + ", res: " + resultCode + ", extras: " + (intent != null ? intent.getExtras() : null));
-		super.onActivityResult(requestCode, resultCode, intent);
+	
+	private void attachToAdjacentMyo(final Object reqVal, final CallbackContext cbc){
+		cordova.getThreadPool().execute(new Runnable() {
+			public void run() {
+				//TODO: check that the Bluetooth interface is on and show a message if not (on the UI thread)
+				boolean res = true;
+				if(reqVal == null){
+					mHub.attachToAdjacentMyo();
+				}else if(reqVal instanceof Number){
+					mHub.attachToAdjacentMyos((int)reqVal);
+				}else if(reqVal instanceof String){
+					mHub.attachByMacAddress((String)reqVal);
+				}else{
+					res = false;
+				}
+				if(res){
+					logd("Attaching...");
+					cbc.success();
+				}else{
+					loge("Unsupported argument passed: " + reqVal, null);
+					cbc.error("Wrong argument passed: " + reqVal);
+				}
+			}
+		});
 	}
-
+	
 	private void logd(String msg) {
 		if (LOG_ENABLED) {
 			Log.d(TAG, msg);

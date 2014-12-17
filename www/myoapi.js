@@ -35,21 +35,6 @@ function getExecOperationFn(apiName){
 	};
 }
 
-//TODO
-var Myo = {
-	UnlockType: {
-		TIMED: "TIMED",
-		HOLD: "HOLD"
-	},
-	lock: function(sCb, eCb){
-		//TODO
-	},
-	unlock: function(sCb, eCb){
-		//TODO
-	}
-	//TODO: ...
-};
-
 var Enum = {
 	LockingPolicy: {
 		NONE: "NONE",
@@ -65,7 +50,7 @@ var Enum = {
 		TOWARD_ELBOW: "TOWARD_ELBOW",
 		UNKNOWN: "UNKNOWN"
 	},
-	Pose:{
+	Pose: {
 		REST: "REST",
 		FIST: "FIST",
 		WAVE_IN: "WAVE_IN",
@@ -73,20 +58,75 @@ var Enum = {
 		FINGERS_SPREAD: "FINGERS_SPREAD",
 		DOUBLE_TAP: "DOUBLE_TAP",
 		UNKNOWN: "UNKNOWN"
+	},
+	UnlockType: {
+		TIMED: "TIMED",
+		HOLD: "HOLD"
+	},
+	Vibration: {
+		SHORT: "SHORT",
+		MEDIUM: "MEDIUM",
+		LONG: "LONG"
+	},
+	ConnectionState: {
+		CONNECTED: "CONNECTED",
+		CONNECTING: "CONNECTING",
+		DISCONNECTED: "DISCONNECTED"
+	}
+};
+
+var execOperation = getExecOperationFn("MyoApi");
+
+var Myo = function(name, macAddress, fwVersion){
+	this.name = name;
+	this.macAddress = macAddress;
+	this.fwVersion = fwVersion;
+};
+Myo.prototype = {
+	constructor: Myo,
+	equals: function(myo2){
+		return this.macAddress === myo2.macAddress;
+	},
+	isUnlocked: function(sCb, eCb){
+		execOperation(sCb, eCb, "myo_isUnlocked", [this.macAddress]);
+	},
+	lock: function(sCb, eCb){
+		execOperation(sCb, eCb, "myo_lock", [this.macAddress]);
+	},
+	unlock: function(unlockType, sCb, eCb){
+		execOperation(sCb, eCb, "myo_unlock", [this.macAddress, unlockType]);
+	},
+	requestRssi: function(sCb, eCb){
+		execOperation(sCb, eCb, "myo_requestRssi", [this.macAddress]);
+	},
+	vibrate: function(vibrationType, sCb, eCb){
+		execOperation(sCb, eCb, "myo_vibrate", [this.macAddress, vibrationType]);
+	},
+	notifyUserAction: function(sCb, eCb){
+		execOperation(sCb, eCb, "myo_notifyUserAction", [this.macAddress]);
+	},
+	getConnectionState: function(sCb, eCb){
+		execOperation(sCb, eCb, "myo_getConnectionState", [this.macAddress]);
+	},
+	isConnected: function(sCb, eCb){
+		execOperation(sCb, eCb, "myo_isConnected", [this.macAddress]);
 	}
 };
 
 //TODO: add Vector3, Quaternion?
 
-
 var myoApi = function(){
-	var execOperation = getExecOperationFn("MyoApi");
+	var myoHubApi = hubApi();
 
 	plgLog("MyoApi constructor called");
 	return { //TODO: this is actually the Hub API
 		LockingPolicy: Enum.LockingPolicy,
-		Pose: Enum.Pose,
 		Arm: Enum.Arm,
+		XDirection: Enum.XDirection,
+		Pose: Enum.Pose,
+		UnlockType: Enum.UnlockType,
+		Vibration: Enum.Vibration,
+		ConnectionState: Enum.ConnectionState,
 		Myo: Myo,
 		init: function(sCb, eCb){
 			execOperation(sCb, eCb, "init");
@@ -115,25 +155,32 @@ var myoApi = function(){
 		},
 		getLockingPolicy: function(sCb, eCb){
 			execOperation(sCb, eCb, "getLockingPolicy");
-			//TODO: return info synchronously
+			//TODO: return info synchronously?
 		},
 		setSendUsageData: function(isSend, sCb, eCb){
 			execOperation(sCb, eCb, "setSendUsageData", isSend);
 		},
 		isSendingUsageData: function(sCb, eCb){
 			execOperation(sCb, eCb, "isSendingUsageData");
-			//TODO: return bool synchronously
+			//TODO: return bool synchronously?
 		},
 		getMyoAttachAllowance: function(sCb, eCb){
 			execOperation(sCb, eCb, "getMyoAttachAllowance");
-			//TODO: return number synchronously
+			//TODO: return number synchronously?
 		},
 		setMyoAttachAllowance: function(allowance, sCb, eCb){
 			execOperation(sCb, eCb, "setMyoAttachAllowance", allowance);
 		},
 		getConnectedDevices: function(sCb, eCb){
 			execOperation(sCb, eCb, "getConnectedDevices");
-			//TODO: return list synchronously
+			//TODO: return list synchronously?
+		},
+		now: function(sCb, eCb){
+			execOperation(function(res){
+				if(sCb){
+					sCb(new Number(res)); //Convert from String to Number
+				}
+			}, eCb, "now");
 		},
 
 		/** Registers a Hub event listener. Use @off to unregister
