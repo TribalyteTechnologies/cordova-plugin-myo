@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.thalmic.myo"
+    android:versionCode="9000"
+    android:versionName="0.9.0" >
+
+    <uses-sdk
+        android:minSdkVersion="18"
+        android:targetSdkVersion="18" />
+
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application>
+        <activity
+            android:name="com.thalmic.myo.scanner.ScanActivity"
+            android:label="@string/myosdk__title_activity_scan"
+            android:theme="@style/myosdk__ScanActivityTheme" />
+    </application>
+
+</manifest>

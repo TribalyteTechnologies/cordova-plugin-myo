@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	id="com.tribalyte.plugin.myo"
+	version="0.0.1">
+	<name>Myo</name>
+	<description>Myo Plugin for Cordova</description>
+	<author>Tribalyte Technologies S.L.</author>
+	<license>MIT / BSD / Apache 2.0 / GPL ???? / Myo SDK license</license>
+	<keywords>myo,thalmic,Myo gesture control armband</keywords>
+	<repo>https://github.com/TribalyteTechnologies/cordova-plugin-myo.git</repo>
+	<issue>https://github.com/TribalyteTechnologies/cordova-plugin-myo/issues</issue>
+
+	<js-module src="www/myoapi.js" name="myoapi">
+		<clobbers target="cordova.plugins.myoApi" />
+	</js-module>
+
+	<!-- Android -->
+	<platform name="android">
+		<config-file target="res/xml/config.xml" parent="/*">
+			<feature name="MyoApi">
+				<param name="android-package" value="com.tribalyte.plugin.myo.MyoApi" />
+				<!-- No need to load the plugin initially -->
+				<!-- param name="onload" value="true" /-->
+			</feature>
+		</config-file>
+		<config-file target="AndroidManifest.xml" parent="/manifest">
+			<uses-permission android:name="android.permission.BLUETOOTH" />
+			<uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+			<uses-permission android:name="android.permission.INTERNET" /> <!-- Required for sending usage data to Thalmic Labs -->
+		</config-file>
+		<config-file target="AndroidManifest.xml" parent="/manifest/application">
+			<!-- TODO: multilang label -->
+			<activity android:name="com.thalmic.myo.scanner.ScanActivity" android:label="Choose a Myo"
+				android:theme="@style/android:Theme.Holo.Light" />
+		</config-file>
+		<framework src="src/android/myo-android-sdk" custom="true" />
+		<!--TODO: overwrite project.properties? -->
+		<source-file src="src/android/com/tribalyte/plugin/myo/MyoApi.java" target-dir="src/com/tribalyte/plugin/myo" />
+	</platform>
+
+</plugin>
