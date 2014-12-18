@@ -3,7 +3,7 @@
 
 //TODO: add JSDoc
 
-var DEBUG_LOG = true;
+var DEBUG_LOG = true; //TODO: configurable logging (none / all / only errors)
 
 var cordova = require("cordova");
 var utils = require("cordova/utils");
@@ -77,10 +77,12 @@ var Enum = {
 
 var execOperation = getExecOperationFn("MyoApi");
 
-var Myo = function(name, macAddress, fwVersion){
-	this.name = name;
-	this.macAddress = macAddress;
-	this.fwVersion = fwVersion;
+//TODO: JSDoc
+var Myo = function(dataArray){
+	//dataArray = [name, macAddress, fwVersion]
+	this.name = dataArray[0];
+	this.macAddress = dataArray[1];
+	this.fwVersion = dataArray[2];
 };
 Myo.prototype = {
 	constructor: Myo,
@@ -113,11 +115,7 @@ Myo.prototype = {
 	}
 };
 
-//TODO: add Vector3, Quaternion?
-
-var myoApi = function(){
-	var myoHubApi = hubApi();
-
+var MyoApi = function(){
 	plgLog("MyoApi constructor called");
 	return { //TODO: this is actually the Hub API
 		LockingPolicy: Enum.LockingPolicy,
@@ -127,7 +125,6 @@ var myoApi = function(){
 		UnlockType: Enum.UnlockType,
 		Vibration: Enum.Vibration,
 		ConnectionState: Enum.ConnectionState,
-		Myo: Myo,
 		init: function(sCb, eCb){
 			execOperation(sCb, eCb, "init");
 		},
@@ -186,20 +183,25 @@ var myoApi = function(){
 		/** Registers a Hub event listener. Use @off to unregister
 		 * @param {string} eventName Supported events: "connect", "disconnect", "pose", "attach", "detach", "armSync", "armUnsync",
 		 * "unlock", "lock", "orientationData", "accelerometerData", "gyroscopeData", "rssi".
-		 * @param {function} onFnCallback Callback to be called when an event is received. Signature depends on event,
+		 * @param {function} onEventCb Callback to be called when an event is received. Signature depends on event,
 		 * for example, for "pose": function(Myo myo, number timestamp, Pose pose)
 		 * @param {function} onErrCb Error callback.
 		 */
-		on: function(eventName, onFnCallback, onErrCb){
-			execOperation(onFnCallback, onErrCb, "on", eventName);
+		on: function(eventName, onEventCb, onErrCb){
+			execOperation(function(res){
+				res.myo = new Myo(res.myo); //Wrap it with the myo object API
+				onEventCb(res);
+			}, onErrCb, "on", eventName);
+			return this;
 		},
 		/** Unregisters a Hub event listenr
 		 * See @on
 		 */
 		off: function(eventName, sCb, eCb){
 			execOperation(sCb, eCb, "off", eventName);
+			return this;
 		}
 	};
 };
 
-module.exports = myoApi();
+module.exports = MyoApi();

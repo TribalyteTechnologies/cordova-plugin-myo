@@ -13,7 +13,7 @@
 	<issue>https://github.com/TribalyteTechnologies/cordova-plugin-myo/issues</issue>
 
 	<js-module src="www/myoapi.js" name="myoapi">
-		<clobbers target="cordova.plugins.myoApi" />
+		<clobbers target="cordova.plugins.MyoApi" />
 	</js-module>
 
 	<!-- Android -->
@@ -37,7 +37,9 @@
 		</config-file>
 		<framework src="src/android/myo-android-sdk" custom="true" />
 		<!--TODO: overwrite project.properties? -->
-		<source-file src="src/android/com/tribalyte/plugin/myo/MyoApi.java" target-dir="src/com/tribalyte/plugin/myo" />
+		<source-file src="src/android/com/tribalyte/plugin/myo/MyoApi.java" target-dir="src/com/tribalyte/plugin/myo/" />
+		<source-file src="src/android/com/tribalyte/plugin/myo/JsonMapper.java" target-dir="src/com/tribalyte/plugin/myo/" />
+		<source-file src="src/android/com/tribalyte/plugin/myo/MyoEventController.java" target-dir="src/com/tribalyte/plugin/myo/" />
 	</platform>
 
 </plugin>
