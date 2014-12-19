@@ -270,6 +270,7 @@ public class MyoApi extends CordovaPlugin {
 		logd("onDestroy. Shutting down Hub");
 		try{
 			if(mHub != null){
+				mHub.removeListener(mController);
 				mHub.shutdown();
 			}
 		}catch(Exception e){

@@ -87,7 +87,11 @@ var Myo = function(dataArray){
 Myo.prototype = {
 	constructor: Myo,
 	equals: function(myo2){
-		return this.macAddress === myo2.macAddress;
+		var res = false;
+		if(myo2){
+			res = (this.macAddress === myo2.macAddress);
+		}
+		return res;
 	},
 	isUnlocked: function(sCb, eCb){
 		execOperation(sCb, eCb, "myo_isUnlocked", [this.macAddress]);
@@ -169,7 +173,13 @@ var MyoApi = function(){
 			execOperation(sCb, eCb, "setMyoAttachAllowance", allowance);
 		},
 		getConnectedDevices: function(sCb, eCb){
-			execOperation(sCb, eCb, "getConnectedDevices");
+			execOperation(function(res){
+				var devList = [];
+				for(var i = 0; i < res.length; ++i){
+					devList.push(new Myo(res[i]));
+				}
+				sCb(devList);
+			}, eCb, "getConnectedDevices");
 			//TODO: return list synchronously?
 		},
 		now: function(sCb, eCb){
@@ -187,6 +197,8 @@ var MyoApi = function(){
 		 * for example, for "pose": function(Myo myo, number timestamp, Pose pose)
 		 * @param {function} onErrCb Error callback.
 		 */
+		//TODO: calculate edge and add parameter to event callback
+		//TODO: timer function to reduce false positives?
 		on: function(eventName, onEventCb, onErrCb){
 			execOperation(function(res){
 				res.myo = new Myo(res.myo); //Wrap it with the myo object API
