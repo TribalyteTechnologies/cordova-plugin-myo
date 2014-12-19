@@ -5,7 +5,8 @@ The Thalmic's Myo gesture armband API available as a Cordova / PhoneGap plugin.
 
 Currently only the Android platform is implemented, based on Myo Android SDK beta4 - 0.9.0.
 
-Check the sample application at: https://github.com/TribalyteTechnologies/cordova-plugin-myo-demo
+Check the sample application at https://github.com/TribalyteTechnologies/cordova-plugin-myo-demo
+<br>And the documentation at http://tribalytetechnologies.github.io/cordova-plugin-myo/doc
 
 
 License
