@@ -1,16 +1,49 @@
-cordova-plugin-myo
-==================
+# cordova-plugin-myo
 
-The Thalmic's Myo gesture armband API available as a Cordova / PhoneGap plugin.
+The [Thalmic's Myo gesture armband](https://www.thalmic.com/en/myo/) API available as a [Cordova / PhoneGap](http://cordova.apache.org/) plugin.
 
-Currently only the Android platform is implemented, based on Myo Android SDK beta4 - 0.9.0.
+Currently only the Android platform is implemented, based on the [Myo Android SDK](https://developer.thalmic.com/docs/api_reference/android/index.html) version beta4 - 0.9.0.
 
 Check the sample application at https://github.com/TribalyteTechnologies/cordova-plugin-myo-demo
 <br>And the documentation at http://tribalytetechnologies.github.io/cordova-plugin-myo/doc
 
+## Installation
+    cordova plugin add https://github.com/TribalyteTechnologies/cordova-plugin-myo.git
 
-License
-==================
+## Usage
+The plugin exposes a `cordova.plugins.MyoApi` object with the following methods:
+* [init](http://tribalytetechnologies.github.io/cordova-plugin-myo/doc/module-MyoApi.html#init)
+* [shutdown](http://tribalytetechnologies.github.io/cordova-plugin-myo/doc/module-MyoApi.html#shutdown)
+* [openScanDialog](http://tribalytetechnologies.github.io/cordova-plugin-myo/doc/module-MyoApi.html#openScanDialog)
+* [attachToAdjacentMyo](http://tribalytetechnologies.github.io/cordova-plugin-myo/doc/module-MyoApi.html#attachToAdjacentMyo)
+* [attachToAdjacentMyos](http://tribalytetechnologies.github.io/cordova-plugin-myo/doc/module-MyoApi.html#attachToAdjacentMyos)
+* [attachByMacAddress](http://tribalytetechnologies.github.io/cordova-plugin-myo/doc/module-MyoApi.html#attachByMacAddress)
+* [detach](http://tribalytetechnologies.github.io/cordova-plugin-myo/doc/module-MyoApi.html#detach)
+* [setLockingPolicy](http://tribalytetechnologies.github.io/cordova-plugin-myo/doc/module-MyoApi.html#setLockingPolicy)
+* [getLockingPolicy](http://tribalytetechnologies.github.io/cordova-plugin-myo/doc/module-MyoApi.html#getLockingPolicy)
+* [setSendUsageData](http://tribalytetechnologies.github.io/cordova-plugin-myo/doc/module-MyoApi.html#setSendUsageData)
+* [isSendingUsageData](http://tribalytetechnologies.github.io/cordova-plugin-myo/doc/module-MyoApi.html#isSendingUsageData)
+* [getMyoAttachAllowance](http://tribalytetechnologies.github.io/cordova-plugin-myo/doc/module-MyoApi.html#getMyoAttachAllowance)
+* [setMyoAttachAllowance](http://tribalytetechnologies.github.io/cordova-plugin-myo/doc/module-MyoApi.html#setMyoAttachAllowance)
+* [getConnectedDevices](http://tribalytetechnologies.github.io/cordova-plugin-myo/doc/module-MyoApi.html#getConnectedDevices)
+* [now](http://tribalytetechnologies.github.io/cordova-plugin-myo/doc/module-MyoApi.html#now)
+* [on](http://tribalytetechnologies.github.io/cordova-plugin-myo/doc/module-MyoApi.html#on)
+* [off](http://tribalytetechnologies.github.io/cordova-plugin-myo/doc/module-MyoApi.html#off)
+
+
+## Supported platforms
+* Android 4.3 (Jelly Bean) and up (device must have Bluetooth radio that supports Bluetooth 4.0)
+
+## Contributing
+Contributions are welcome. To do so:
+1. Fork this repo ( https://github.com/TribalyteTechnologies/cordova-plugin-myo/fork )
+2. Create your feature branch (`git checkout -b my-new-feature`)
+3. Commit your changes (`git commit -am 'Add some feature'`)
+4. Push to the branch (`git push origin my-new-feature`)
+5. Create a new Pull Request
+
+
+# License
 
 The code developed by Tribalyte Technologies is distributed under the terms of the license below, while other pieces of software are protected by their corresponding licenses.
 
