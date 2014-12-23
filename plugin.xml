@@ -36,7 +36,6 @@
 				android:theme="@style/android:Theme.Holo.Light" />
 		</config-file>
 		<framework src="src/android/myo-android-sdk" custom="true" />
-		<!--TODO: overwrite project.properties? -->
 		<source-file src="src/android/com/tribalyte/plugin/myo/MyoApi.java" target-dir="src/com/tribalyte/plugin/myo/" />
 		<source-file src="src/android/com/tribalyte/plugin/myo/JsonMapper.java" target-dir="src/com/tribalyte/plugin/myo/" />
 		<source-file src="src/android/com/tribalyte/plugin/myo/MyoEventController.java" target-dir="src/com/tribalyte/plugin/myo/" />
