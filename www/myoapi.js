@@ -27,7 +27,6 @@
  * @license MIT
  * @copyright [Tribalyte Technologies S.L.]{@link http://www.tribalyte.com/}
  * @author rbarriuso
- * @version 0.0.1
  */
 
 "use strict";
