@@ -30,12 +30,50 @@ The plugin exposes a `cordova.plugins.MyoApi` object with the following methods:
 * [on](http://tribalytetechnologies.github.io/cordova-plugin-myo/doc/module-MyoApi.html#on)
 * [off](http://tribalytetechnologies.github.io/cordova-plugin-myo/doc/module-MyoApi.html#off)
 
+An example of initialization code would be:
+```
+var MyoApi = cordova.plugins.MyoApi;
+MyoApi.init(function(){
+	console.log("Myo Hub initialized successfully");
+}, function(err){
+	console.log("Error initializing Myo Hub: " + err);
+});
+//...
+var myMyo = null;
+MyoApi
+.on("connect", function(ev){
+	myMyo = ev.myo;
+	window.alert(myMyo.name + " is  connected");
+	localStorage["lastUsedMyoMac"] = myMyo.macAddress;
+	console.log("Myo MAC address stored for easier future connection: " + localStorage["lastUsedMyoMac"]);
+	myMyo.vibrate(MyoApi.VibrationType.MEDIUM); //Make the Myo vibrate
+})
+.on("disconnect", function(ev){
+	window.alert(myMyo.name + " has disconnected");
+	myMyo = null;
+})
+.on("pose", function(ev){
+	window.alert("Pose detected: " + ev.pose);
+});
+//...
+var lastMac = localStorage["lastUsedMyoMac"];
+if(lastMac){
+	MyoApi.attachByMacAddress(lastMac);
+}else{
+	window.alert("Place the Myo very close to the mobile device");
+	MyoApi.attachToAdjacentMyo();
+}
+//Alternatively, for testing purposes, we could use MyoApi.openScanDialog()
+//to connect to a device manually
+```
+For a working example, check the [plugin sample application](https://github.com/TribalyteTechnologies/cordova-plugin-myo-demo).
 
 ## Supported platforms
 * Android 4.3 (Jelly Bean) and up (device must have Bluetooth radio that supports Bluetooth 4.0)
 
 ## Contributing
 Contributions are welcome. To do so:
+
 1. Fork this repo ( https://github.com/TribalyteTechnologies/cordova-plugin-myo/fork )
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
