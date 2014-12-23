@@ -7,7 +7,7 @@
 	<name>Myo</name>
 	<description>Myo Plugin for Cordova</description>
 	<author>Tribalyte Technologies S.L.</author>
-	<license>MIT / BSD / Apache 2.0 / GPL ???? / Myo SDK license</license>
+	<license>MIT</license>
 	<keywords>myo,thalmic,Myo gesture control armband</keywords>
 	<repo>https://github.com/TribalyteTechnologies/cordova-plugin-myo.git</repo>
 	<issue>https://github.com/TribalyteTechnologies/cordova-plugin-myo/issues</issue>
