@@ -43,10 +43,75 @@
 
 
     <section>
-        <article><h1>cordova-plugin-myo</h1><p>The Thalmic's Myo gesture armband API available as a Cordova / PhoneGap plugin.</p>
-<p>Currently only the Android platform is implemented, based on Myo Android SDK v0.10.0.</p>
+        <article><h1>cordova-plugin-myo</h1><p>The <a href="https://www.thalmic.com/en/myo/">Thalmic's Myo gesture armband</a> API available as a <a href="http://cordova.apache.org/">Cordova / PhoneGap</a> plugin.</p>
+<p>Currently only the Android platform is implemented, based on the <a href="https://developer.thalmic.com/docs/api_reference/android/index.html">Myo Android SDK</a> version 0.10.0.</p>
 <p>Check the sample application at https://github.com/TribalyteTechnologies/cordova-plugin-myo-demo
 <br>And the documentation at http://tribalytetechnologies.github.io/cordova-plugin-myo/doc</p>
+<h2>Installation</h2><pre class="prettyprint source"><code>cordova plugin add https://github.com/TribalyteTechnologies/cordova-plugin-myo.git</code></pre><h2>Usage</h2><p>The plugin exposes a <code>cordova.plugins.MyoApi</code> object with the following methods:</p>
+<ul>
+<li><a href="http://tribalytetechnologies.github.io/cordova-plugin-myo/doc/module-MyoApi.html#init">init</a></li>
+<li><a href="http://tribalytetechnologies.github.io/cordova-plugin-myo/doc/module-MyoApi.html#shutdown">shutdown</a></li>
+<li><a href="http://tribalytetechnologies.github.io/cordova-plugin-myo/doc/module-MyoApi.html#openScanDialog">openScanDialog</a></li>
+<li><a href="http://tribalytetechnologies.github.io/cordova-plugin-myo/doc/module-MyoApi.html#attachToAdjacentMyo">attachToAdjacentMyo</a></li>
+<li><a href="http://tribalytetechnologies.github.io/cordova-plugin-myo/doc/module-MyoApi.html#attachToAdjacentMyos">attachToAdjacentMyos</a></li>
+<li><a href="http://tribalytetechnologies.github.io/cordova-plugin-myo/doc/module-MyoApi.html#attachByMacAddress">attachByMacAddress</a></li>
+<li><a href="http://tribalytetechnologies.github.io/cordova-plugin-myo/doc/module-MyoApi.html#detach">detach</a></li>
+<li><a href="http://tribalytetechnologies.github.io/cordova-plugin-myo/doc/module-MyoApi.html#setLockingPolicy">setLockingPolicy</a></li>
+<li><a href="http://tribalytetechnologies.github.io/cordova-plugin-myo/doc/module-MyoApi.html#getLockingPolicy">getLockingPolicy</a></li>
+<li><a href="http://tribalytetechnologies.github.io/cordova-plugin-myo/doc/module-MyoApi.html#setSendUsageData">setSendUsageData</a></li>
+<li><a href="http://tribalytetechnologies.github.io/cordova-plugin-myo/doc/module-MyoApi.html#isSendingUsageData">isSendingUsageData</a></li>
+<li><a href="http://tribalytetechnologies.github.io/cordova-plugin-myo/doc/module-MyoApi.html#getMyoAttachAllowance">getMyoAttachAllowance</a></li>
+<li><a href="http://tribalytetechnologies.github.io/cordova-plugin-myo/doc/module-MyoApi.html#setMyoAttachAllowance">setMyoAttachAllowance</a></li>
+<li><a href="http://tribalytetechnologies.github.io/cordova-plugin-myo/doc/module-MyoApi.html#getConnectedDevices">getConnectedDevices</a></li>
+<li><a href="http://tribalytetechnologies.github.io/cordova-plugin-myo/doc/module-MyoApi.html#now">now</a></li>
+<li><a href="http://tribalytetechnologies.github.io/cordova-plugin-myo/doc/module-MyoApi.html#on">on</a></li>
+<li><a href="http://tribalytetechnologies.github.io/cordova-plugin-myo/doc/module-MyoApi.html#off">off</a></li>
+</ul>
+<p>An example of initialization code would be:</p>
+<pre class="prettyprint source"><code>var MyoApi = cordova.plugins.MyoApi;
+MyoApi.init(function(){
+    console.log(&quot;Myo Hub initialized successfully&quot;);
+}, function(err){
+    console.log(&quot;Error initializing Myo Hub: &quot; + err);
+});
+//...
+var myMyo = null;
+MyoApi
+.on(&quot;connect&quot;, function(ev){
+    myMyo = ev.myo;
+    window.alert(myMyo.name + &quot; is  connected&quot;);
+    localStorage[&quot;lastUsedMyoMac&quot;] = myMyo.macAddress;
+    console.log(&quot;Myo MAC address stored for easier future connection: &quot; + localStorage[&quot;lastUsedMyoMac&quot;]);
+    myMyo.vibrate(MyoApi.VibrationType.MEDIUM); //Make the Myo vibrate
+})
+.on(&quot;disconnect&quot;, function(ev){
+    window.alert(myMyo.name + &quot; has disconnected&quot;);
+    myMyo = null;
+})
+.on(&quot;pose&quot;, function(ev){
+    window.alert(&quot;Pose detected: &quot; + ev.pose);
+});
+//...
+var lastMac = localStorage[&quot;lastUsedMyoMac&quot;];
+if(lastMac){
+    MyoApi.attachByMacAddress(lastMac);
+}else{
+    window.alert(&quot;Place the Myo very close to the mobile device&quot;);
+    MyoApi.attachToAdjacentMyo();
+}
+//Alternatively, for testing purposes, we could use MyoApi.openScanDialog()
+//to connect to a device manually</code></pre><p>For a working example, check the <a href="https://github.com/TribalyteTechnologies/cordova-plugin-myo-demo">plugin sample application</a>.</p>
+<h2>Supported platforms</h2><ul>
+<li>Android 4.3 (Jelly Bean) and up (device must have Bluetooth radio that supports Bluetooth 4.0)</li>
+</ul>
+<h2>Contributing</h2><p>Contributions are welcome. To do so:</p>
+<ol>
+<li>Fork this repo ( https://github.com/TribalyteTechnologies/cordova-plugin-myo/fork )</li>
+<li>Create your feature branch (<code>git checkout -b my-new-feature</code>)</li>
+<li>Commit your changes (<code>git commit -am 'Add some feature'</code>)</li>
+<li>Push to the branch (<code>git push origin my-new-feature</code>)</li>
+<li>Create a new Pull Request</li>
+</ol>
 <h1>License</h1><p>The code developed by Tribalyte Technologies is distributed under the terms of the license below, while other pieces of software are protected by their corresponding licenses.</p>
 <p>The MIT License (http://www.opensource.org/licenses/mit-license.html)</p>
 <p>Copyright (c) 2014 Tribalyte Technologies S.L. (http://www.tribalyte.com/)</p>
@@ -190,7 +255,7 @@ THE SOFTWARE.</p></article>
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha11</a> on Sat Dec 20 2014 13:22:24 GMT+0100 (Hora estándar romance)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha11</a> on Wed Dec 24 2014 01:15:28 GMT+0100 (Hora estándar romance)
 </footer>
 
 <script> prettyPrint(); </script>
