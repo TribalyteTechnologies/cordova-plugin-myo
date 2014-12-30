@@ -32,6 +32,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
@@ -70,6 +71,8 @@ public class MyoApi extends CordovaPlugin {
 	private static final String ACTION_NOW = "now";
 	private static final String ACTION_ON = "on";
 	private static final String ACTION_OFF = "off";
+	private static final String ACTION_OPEN_BLUETOOTH_CONFIG = "openBluetoothConfig";
+	private static final String ACTION_IS_BLUETOOTH_ENABLED = "isBluetoothEnabled";
 	/* Actions on Myo */
 	private static final String ACTION_MYO_IS_UNLOCKED = "myo_isUnlocked";
 	private static final String ACTION_MYO_LOCK = "myo_lock";
@@ -79,9 +82,12 @@ public class MyoApi extends CordovaPlugin {
 	private static final String ACTION_MYO_NOTIFY_USER = "myo_notifyUserAction";
 	private static final String ACTION_MYO_GET_CONNECT_STATE = "myo_getConnectionState";
 	private static final String ACTION_MYO_IS_CONNECTED = "myo_isConnected";
+	
+	private static final int REQ_CODE_ENABLE_BT = 1;
 
 	private final MyoEventController mController = new MyoEventController();
 	private Hub mHub = null;
+	private CallbackContext mOpenBtConfigCbc = null;
 
 	@Override
 	public void initialize(CordovaInterface cordova, CordovaWebView webView) {
@@ -184,6 +190,16 @@ public class MyoApi extends CordovaPlugin {
 			if(myo != null){
 				cbc.success(myo.isConnected() ? 1 : 0);
 			}
+		}else if(ACTION_IS_BLUETOOTH_ENABLED.equals(action)){
+			try{
+				cbc.success(BluetoothAdapter.getDefaultAdapter().isEnabled() ? 1 : 0);
+			}catch(Exception e){
+				loge("Error accessing Bluetooth adapter", e);
+				cbc.error("Error accessing Bluetooth adapter");
+			}
+		}else if(ACTION_OPEN_BLUETOOTH_CONFIG.equals(action)){
+			startBluetoothConfigActivity();
+			mOpenBtConfigCbc = cbc;
 		}else{
 			logw("Action not supported: " + action);
 			res = false; //Will result in a "MethodNotFound" error
@@ -216,13 +232,19 @@ public class MyoApi extends CordovaPlugin {
 		cordova.getActivity().runOnUiThread(new Runnable() {
 			public void run() {
 				Activity ctx = cordova.getActivity();
-				Intent intent = new Intent(ctx, ScanActivity.class);
-				//TODO: remove flags
-				//intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				//intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-				ctx.startActivity(intent);
+				ctx.startActivity(new Intent(ctx, ScanActivity.class));
 				logd("Test scan activity started");
 				cbc.success();
+			}
+		});
+	}
+	
+	private void startBluetoothConfigActivity() {
+		cordova.getActivity().runOnUiThread(new Runnable() {
+			public void run() {
+				cordova.setActivityResultCallback(MyoApi.this);
+				cordova.getActivity().startActivityForResult(new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE), REQ_CODE_ENABLE_BT);
+				logd("BT configuration activity started");
 			}
 		});
 	}
@@ -230,7 +252,6 @@ public class MyoApi extends CordovaPlugin {
 	private void attachToAdjacentMyo(final Object reqVal, final CallbackContext cbc){
 		cordova.getThreadPool().execute(new Runnable() {
 			public void run() {
-				//TODO: check that the Bluetooth interface is on and show a message if not (on the UI thread)
 				boolean res = true;
 				if(reqVal == null){
 					mHub.attachToAdjacentMyo();
@@ -312,6 +333,20 @@ public class MyoApi extends CordovaPlugin {
 	public void onReset() {
 		logd("onReset");
 		super.onReset();
+	}
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+		logd("onActivityResult. requestCode: " + requestCode + ", resultCode: " + resultCode);
+		if(REQ_CODE_ENABLE_BT == requestCode){
+			if(mOpenBtConfigCbc != null){
+				mOpenBtConfigCbc.success((resultCode == Activity.RESULT_OK) ? 1 : 0);
+				mOpenBtConfigCbc = null;
+			}else{
+				loge("Received BT enable activity result but no callbacks were stored", null);
+			}
+		}
+		super.onActivityResult(requestCode, resultCode, intent);
 	}
 
 }

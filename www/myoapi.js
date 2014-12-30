@@ -285,6 +285,7 @@ var MyoApi = function(){
 		shutdown: function(sCb, eCb){
 			execOperation(sCb, eCb, "shutdown");
 		},
+
 		/** Opens a native dialog which displays the Myo devices in range and
 		 * gives the option to connect to them. No result is returned.
 		 * @param {SuccessCallback} sCb Success callback
@@ -292,6 +293,24 @@ var MyoApi = function(){
 		 * */
 		openScanDialog: function(sCb, eCb){
 			execOperation(sCb, eCb, "openScanDialog");
+		},
+
+		/** Opens the Bluetooth adapter configuration screen.
+		 * @param {BooleanCallback} sCb Success callback. Receives 1 if the user
+		 * turned on the Bluetooth adapter, 0 otherwise.
+		 * @param {ErrorCallback} eCb Error callback
+		 * */
+		openBluetoothConfig: function(sCb, eCb){
+			execOperation(sCb, eCb, "openBluetoothConfig");
+		},
+
+		/** Checks if the Bluetooth adapter is enabled
+		 * @param {BooleanCallback} sCb Success callback. Receives 1 if the adapter is
+		 * enabled, 0 otherwise.
+		 * @param {ErrorCallback} eCb Error callback
+		 * */
+		isBluetoothEnabled: function(sCb, eCb){
+			execOperation(sCb, eCb, "isBluetoothEnabled");
 		},
 
 		/** Initiate attaching to a Myo that is physically very near to (almost touching) the Bluetooth radio.
